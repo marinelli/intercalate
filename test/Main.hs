@@ -31,7 +31,9 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
         , example "smintercalate" "a , b , c" (smintercalate "," ["a", "b", "c"])
         , example "smconcat" "foo bar baz" (smconcat ["foo", "bar", "baz"])
         , example "smconcat Text" "foo bar baz" (T.unpack (smconcat (map T.pack ["foo", "bar", "baz"])))
-        , example "smconcat infinite" "x x x" (take 5 (smconcat (repeat "x")))
+        , -- With repeat "x", a spine-strict version would loop without
+          -- allocating, and tasty's timeout could not stop it.
+          example "smconcat is lazy" "x y" (take 3 (smconcat ("x" : "y" : undefined)))
         ]
       where
         example :: String -> String -> String -> TestTree
