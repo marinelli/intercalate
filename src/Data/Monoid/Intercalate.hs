@@ -1,23 +1,24 @@
--- | Combinators for joining 'Semigroup'\/'Monoid' values together with a
--- separator.
+-- | Functions that join 'Semigroup' and 'Monoid' values with a separator
+-- between them.
 module Data.Monoid.Intercalate (
   interpose,
   mintercalate,
 ) where
 
-import Data.Foldable (toList)
-import Data.List (intersperse)
+import Data.Foldable
+import Data.List
 
--- | Join two values by placing a separator between them.
+-- | @interpose s a b@ puts the separator @s@ between @a@ and @b@.
 --
 -- >>> interpose ", " "left" "right"
 -- "left, right"
 interpose :: Semigroup s => s -> s -> s -> s
 interpose s left right = left <> s <> right
 
--- | 'Data.List.intercalate' generalised to any 'Foldable' of 'Monoid'
--- values: joins the elements together, inserting the given separator
--- between each adjacent pair. Returns 'mempty' for an empty structure.
+-- | @mintercalate s xs@ puts the separator @s@ between each pair of
+-- neighboring elements of @xs@, and concatenates the result. It is
+-- 'Data.List.intercalate' for any 'Foldable' of 'Monoid' values. If @xs@
+-- is empty, the result is 'mempty'.
 --
 -- >>> mintercalate ", " ["a", "b", "c"]
 -- "a, b, c"

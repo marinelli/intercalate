@@ -1,5 +1,7 @@
 # Revision history for intercalate
 
-## 0.1.0.0 -- YYYY-mm-dd
+## 1.0.0.0 -- unreleased
 
-* First version. Released on an unsuspecting world.
+* First version.
+* `Data.Monoid.Intercalate` provides `interpose` and `mintercalate`.
+* `Data.String.Intercalate` provides `space`, `(<+>)`, `smintercalate` and `smconcat`.
