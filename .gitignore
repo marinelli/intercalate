@@ -1,2 +1,5 @@
 dist-newstyle/
 cabal.project.local
+.ghc.environment.*
+TAGS
+TAGS.mtime
