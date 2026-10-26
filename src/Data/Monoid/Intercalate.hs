@@ -26,7 +26,10 @@ interpose s left right = left <> s <> right
 -- On a strict @ByteString@, use @Data.ByteString.intercalate@ if speed
 -- matters. It copies the pieces straight into one buffer, but
 -- 'mintercalate' first builds a list of the pieces and the separators.
--- With 100,000 short pieces, @Data.ByteString.intercalate@ is about 5 times
--- faster, and it allocates about 12 times less memory.
+-- With 100,000 short pieces, @Data.ByteString.intercalate@ was about 5
+-- times faster, and it allocated about 12 times less memory. These numbers
+-- come from the ByteString group of the benchmark of this package, run on
+-- its own with GHC 9.12.4 and bytestring-0.12.2.0. The speed ratio depends
+-- on the state of the heap: after the other groups, it was about 8.
 mintercalate :: (Foldable f, Monoid a) => a -> f a -> a
 mintercalate s = mconcat . intersperse s . toList

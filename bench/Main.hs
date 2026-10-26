@@ -9,6 +9,10 @@ import Test.Tasty.Bench
 
 main :: IO ()
 main =
+  -- Earlier groups slow down later ones through the state of the heap. On
+  -- GHC 9.12.4, mintercalate on ByteString took 6.6 ms alone and 10.9 ms
+  -- after the other groups. The documentation of mintercalate quotes the
+  -- ByteString group alone, i.e. -p '$2 == "ByteString"'.
   defaultMain
     [ versus "String" "Data.List.intercalate" intercalate id
     , versus "Text" "T.intercalate" T.intercalate T.pack
@@ -30,7 +34,8 @@ main =
     pieces = map show [1 .. count]
 
     -- At this count a quadratic join stands out. On strict Text,
-    -- foldr1 (interpose s) took 2.4 s and mintercalate 10 ms, in one run
-    -- on GHC 9.12.4.
+    -- foldr1 (interpose s) took 24 s in one run, and mintercalate took
+    -- 7.4 ms in the Text group alone. Both ran with GHC 9.12.4 and
+    -- text-2.1.4 on an Intel i7-7700.
     count :: Int
     count = 100000
