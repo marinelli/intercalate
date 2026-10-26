@@ -26,10 +26,7 @@ source-repository head
 
 common common-stanza
   default-language:   Haskell2010
-  default-extensions:
-    ImportQualifiedPost
-    OverloadedStrings
-
+  default-extensions: ImportQualifiedPost
   ghc-options:        -Wall -Werror=prepositive-qualified-module
   build-depends:      base >=4.16 && <5
 
@@ -51,6 +48,7 @@ test-suite intercalate-test
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , template-haskell
     , text
 
 benchmark intercalate-bench

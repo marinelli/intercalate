@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Main (main) where
 
 import Data.ByteString.Char8 qualified as B
@@ -5,6 +7,7 @@ import Data.List
 import Data.List.NonEmpty qualified as NE
 import Data.String.Intercalate
 import Data.Text qualified as T
+import Language.Haskell.TH
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -24,8 +27,7 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
         , example "mintercalate NonEmpty" "a, b, c" (mintercalate ", " ("a" NE.:| ["b", "c"]))
         , example "mintercalate Text" "a, b, c" (T.unpack (mintercalate (T.pack ", ") (map T.pack ["a", "b", "c"])))
         , example "<+>" "foo bar" ("foo" <+> "bar")
-        , -- If (<+>) were infixl 6, this test would not compile, because (<>) is infixr 6.
-          example "<+> mixed with <>" "ab cd" ("a" <> "b" <+> "c" <> "d")
+        , example "<+> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(<+>) >>= stringE . show)
         , example "smintercalate" "a , b , c" (smintercalate "," ["a", "b", "c"])
         , example "smconcat" "foo bar baz" (smconcat ["foo", "bar", "baz"])
         , example "smconcat Text" "foo bar baz" (T.unpack (smconcat (map T.pack ["foo", "bar", "baz"])))

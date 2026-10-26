@@ -237,7 +237,7 @@ jobs:
       if: contains(fromJSON('["9.2","9.4","9.6","9.8","9.10","9.12","9.14"]'), matrix.ghc)
       working-directory: ${{ runner.temp }}/haskell-gha
       run: |
-        "$HOME"/.local/bin/doctest -XHaskell2010 -XImportQualifiedPost -XOverloadedStrings src
+        "$HOME"/.local/bin/doctest -XHaskell2010 -XImportQualifiedPost src
 
     - name: Check the packages
       working-directory: ${{ runner.temp }}/haskell-gha
