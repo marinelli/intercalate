@@ -2,7 +2,6 @@ branches:
 - main
 doctest:
   enabled: true
-  ghc: <10
 fourmolu:
   enabled: true
   version: '0.21.0.0'
