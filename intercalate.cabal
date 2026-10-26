@@ -16,7 +16,10 @@ license-file:    LICENSE
 author:          Giorgio Marinelli
 maintainer:      giorgio@marinel.li
 build-type:      Simple
-extra-doc-files: CHANGELOG.md
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+
 tested-with:
   GHC ^>=9.2 || ^>=9.4 || ^>=9.6 || ^>=9.8 || ^>=9.10 || ^>=9.12 || ^>=9.14 || ^>=10.0
 
