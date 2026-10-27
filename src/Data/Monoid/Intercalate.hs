@@ -17,7 +17,7 @@ import Data.List
 interpose :: Semigroup s => s -> s -> s -> s
 interpose s left right = left <> s <> right
 
--- | @interposeSkipEmpty s a b@ is like 'interposeSkipEmpty, but it puts the
+-- | @interposeSkipEmpty s a b@ is like 'interpose', but it puts the
 -- separator @s@ only if neither @a@ nor @b@ is 'mempty'. If one of them is
 -- 'mempty', the result is the other one.
 --
