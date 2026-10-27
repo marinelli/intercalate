@@ -3,5 +3,5 @@
 ## 1.0.0.0 -- unreleased
 
 * First version.
-* `Data.Monoid.Intercalate` provides `interpose` and `mintercalate`.
-* `Data.String.Intercalate` provides `space`, `(<+>)`, `smintercalate` and `smconcat`.
+* `Data.Monoid.Intercalate` provides `interpose`, `interposeSkipEmpty`, `mintercalate` and `mintercalateSkipEmpty`.
+* `Data.String.Intercalate` provides `space`, `(<+>)`, `(<+?>)`, `smintercalate`, `smconcat` and `smconcatSkipEmpty`.

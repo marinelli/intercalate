@@ -6,8 +6,10 @@ module Data.String.Intercalate (
   module Data.Monoid.Intercalate,
   space,
   (<+>),
+  (<+?>),
   smintercalate,
   smconcat,
+  smconcatSkipEmpty,
 ) where
 
 import Data.Monoid.Intercalate
@@ -36,6 +38,25 @@ space = fromString [' ']
 
 infixr 6 <+>
 
+-- | @a \<+?> b@ is like @a \<+> b@, but it puts the space only if neither
+-- @a@ nor @b@ is 'mempty'. If one of them is 'mempty', the result is the
+-- other one.
+--
+-- >>> "foo" <+?> "bar"
+-- "foo bar"
+-- >>> "" <+?> "bar"
+-- "bar"
+--
+-- Every grouping of @a \<+?> b \<+?> c@ gives the same result on a type
+-- where a join of two non-empty values is never 'mempty', e.g. 'String',
+-- @Text@ or @ByteString@.
+--
+-- The operator has the same fixity as '<>' and '<+>', i.e. @infixr 6@.
+(<+?>) :: (Eq s, Monoid s, IsString s) => s -> s -> s
+(<+?>) = interposeSkipEmpty space
+
+infixr 6 <+?>
+
 -- | @smintercalate s xs@ is like 'mintercalate', but it puts a space before
 -- and after the separator @s@. So no element of @xs@ touches the separator.
 --
@@ -52,3 +73,12 @@ smintercalate s = mintercalate (interpose s space space)
 -- "foo bar baz"
 smconcat :: (Foldable f, Monoid a, IsString a) => f a -> a
 smconcat = mintercalate space
+
+-- | @smconcatSkipEmpty xs@ is like 'smconcat', but it leaves out the
+-- elements of @xs@ that are 'mempty'. It is 'Data.List.unwords' after the
+-- empty strings are removed.
+--
+-- >>> smconcatSkipEmpty ["foo", "", "bar"]
+-- "foo bar"
+smconcatSkipEmpty :: (Foldable f, Eq a, Monoid a, IsString a) => f a -> a
+smconcatSkipEmpty = mintercalateSkipEmpty space
