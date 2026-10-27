@@ -4,7 +4,6 @@ import Control.DeepSeq
 import Data.ByteString.Char8 qualified as B
 import Data.ByteString.Lazy.Char8 qualified as BL
 import Data.ByteString.Short qualified as SBS
-import Data.Intercalate qualified as C
 import Data.List
 import Data.Monoid.Intercalate
 import Data.Text qualified as T
@@ -26,20 +25,16 @@ main =
     , versus "ShortByteString" "SBS.intercalate" SBS.intercalate (SBS.toShort . B.pack)
     ]
   where
-    versus :: (NFData a, C.Intercalate a) => String -> String -> (a -> [a] -> a) -> (String -> a) -> Benchmark
+    versus :: (NFData a, Monoid a) => String -> String -> (a -> [a] -> a) -> (String -> a) -> Benchmark
     versus name baselineName baseline pack =
       env (pure (map pack pieces)) $ \xs ->
         bgroup
           name
           [ bench baselineName (nf (baseline (pack ", ")) xs)
-          , bcompare baselinePattern (bench "mintercalate" (nf (mintercalate (pack ", ")) xs))
-          , bcompare baselinePattern (bench "Data.Intercalate.mintercalate" (nf (C.mintercalate (pack ", ")) xs))
+          , -- The pattern looks only at the last name in the path, so each
+            -- baseline name must be unique.
+            bcompare ("$NF == \"" ++ baselineName ++ "\"") (bench "mintercalate" (nf (mintercalate (pack ", ")) xs))
           ]
-      where
-        -- The pattern looks only at the last name in the path, so each
-        -- baseline name must be unique.
-        baselinePattern :: String
-        baselinePattern = "$NF == \"" ++ baselineName ++ "\""
 
     pieces :: [String]
     pieces = map show [1 .. count]

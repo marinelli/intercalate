@@ -2,20 +2,12 @@
 
 module Main (main) where
 
-import Data.ByteString.Builder qualified as BB
 import Data.ByteString.Char8 qualified as B
-import Data.ByteString.Lazy.Char8 qualified as BL
-import Data.ByteString.Short qualified as SBS
 import Data.Char
-import Data.Intercalate qualified as C
-import Data.Intercalate.SkipEmpty qualified as CS
 import Data.List
 import Data.List.NonEmpty qualified as NE
 import Data.Monoid.Intercalate
-import Data.Monoid.Intercalate.SkipEmpty
-import Data.String
 import Data.Text qualified as T
-import Data.Text.Lazy qualified as TL
 import Language.Haskell.TH
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -34,33 +26,7 @@ instance Arbitrary Piece where
   shrink = map Piece . shrink . unPiece
 
 main :: IO ()
-main =
-  defaultMain
-    ( testGroup
-        "intercalate"
-        [ examples
-        , properties
-        , testGroup
-            "Data.Intercalate"
-            [ fastJoin "String" id id
-            , fastJoin "strict Text" T.pack id
-            , fastJoin "lazy Text" TL.pack id
-            , fastJoin "strict ByteString" B.pack id
-            , fastJoin "lazy ByteString" BL.pack id
-            , fastJoin "ShortByteString" (SBS.toShort . B.pack) id
-            , fastJoin "Builder" BB.string7 BB.toLazyByteString
-            ]
-        , testGroup
-            "Data.Intercalate.SkipEmpty"
-            [ skipEmptyJoin "String" id
-            , skipEmptyJoin "strict Text" T.pack
-            , skipEmptyJoin "lazy Text" TL.pack
-            , skipEmptyJoin "strict ByteString" B.pack
-            , skipEmptyJoin "lazy ByteString" BL.pack
-            , skipEmptyJoin "ShortByteString" (SBS.toShort . B.pack)
-            ]
-        ]
-    )
+main = defaultMain (testGroup "intercalate" [examples, properties])
   where
     examples :: TestTree
     examples =
@@ -99,22 +65,10 @@ main =
         , example "mintercalateSkipEmpty is lazy" "x y" (take 3 (mintercalateSkipEmpty " " ("x" : "" : "y" : undefined)))
         , example "mintercalateSkipEmptyBy" "a, b" (mintercalateSkipEmptyBy (all isSpace) ", " ["a", " ", "", "b"])
         , example "munwordsSkipEmpty" "foo bar" (munwordsSkipEmpty ["foo", "", "bar"])
-        , example "Data.Intercalate.mintercalate ByteString" "a, b" (B.unpack (C.mintercalate (B.pack ", ") (map B.pack ["a", "b"])))
-        , example "Data.Intercalate.mintercalate ShortByteString" "a, b" (B.unpack (SBS.fromShort (C.mintercalate (short ", ") (map short ["a", "b"]))))
-        , example "Data.Intercalate.mintercalate Builder" "a, b" (BL.unpack (BB.toLazyByteString (C.mintercalate (BB.string7 ", ") (map BB.string7 ["a", "b"]))))
-        , example "Data.Intercalate.mintercalate is lazy" "a" (take 1 (C.mintercalate "," ("a" : undefined)))
-        , example "Data.Intercalate.munwords is lazy" "x y" (take 3 (C.munwords ("x" : "y" : undefined)))
-        , example "Data.Intercalate.SkipEmpty.<+?> ByteString" "bar" (B.unpack (B.empty CS.<+?> B.pack "bar"))
-        , example "Data.Intercalate.SkipEmpty.<+?> is lazy" "x y" (take 3 (foldr (CS.<+?>) "" ("x" : "" : "y" : undefined)))
-        , example "Data.Intercalate.SkipEmpty.<+?> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(CS.<+?>) >>= stringE . show)
-        , example "Data.Intercalate.SkipEmpty.mintercalateSkipEmpty is lazy" "x y" (take 3 (CS.mintercalateSkipEmpty " " ("x" : "" : "y" : undefined)))
         ]
       where
         example :: String -> String -> String -> TestTree
         example name expected actual = testCase name (assertEqual "" expected actual)
-
-        short :: String -> SBS.ShortByteString
-        short = SBS.toShort . B.pack
 
 properties :: TestTree
 properties =
@@ -187,68 +141,3 @@ properties =
     unwordsSkipEmpty ps = munwordsSkipEmpty xs === unwords (filter (not . null) xs)
       where
         xs = map unPiece ps
-
--- | Checks that the functions of "Data.Intercalate" give the results of
--- their twins in "Data.Monoid.Intercalate", after @observe@.
-fastJoin :: (C.Intercalate a, IsString a, Eq o, Show o) => String -> (String -> a) -> (a -> o) -> TestTree
-fastJoin name pack observe =
-  testGroup
-    name
-    [ testProperty "mintercalate is the core one" joins
-    , testProperty "mintercalateMap is the core one" mapsAndJoins
-    , testProperty "munwords is the core one" unwordsJoins
-    ]
-  where
-    joins :: Piece -> [Piece] -> Property
-    joins (Piece s) ps = observe (C.mintercalate (pack s) xs) === observe (mintercalate (pack s) xs)
-      where
-        xs = map (pack . unPiece) ps
-
-    mapsAndJoins :: Piece -> [Piece] -> Property
-    mapsAndJoins (Piece s) ps = observe (C.mintercalateMap (pack s) pack xs) === observe (mintercalateMap (pack s) pack xs)
-      where
-        xs = map unPiece ps
-
-    unwordsJoins :: [Piece] -> Property
-    unwordsJoins ps = observe (C.munwords xs) === observe (munwords xs)
-      where
-        xs = map (pack . unPiece) ps
-
--- | Checks the 'CS.IsEmpty' law, and that the functions of
--- "Data.Intercalate.SkipEmpty" give the results of their twins in
--- "Data.Monoid.Intercalate.SkipEmpty".
-skipEmptyJoin :: (C.Intercalate a, CS.IsEmpty a, IsString a, Eq a, Show a) => String -> (String -> a) -> TestTree
-skipEmptyJoin name pack =
-  testGroup
-    name
-    [ testProperty "isEmpty is == mempty" isEmptyLaw
-    , testProperty "interposeSkipEmpty is the core one" interposes
-    , testProperty "<+?> is the core one" spaces
-    , testProperty "mintercalateSkipEmpty is the core one" joins
-    , testProperty "mintercalateSkipEmptyBy is the core one" joinsBy
-    , testProperty "munwordsSkipEmpty is the core one" unwordsJoins
-    ]
-  where
-    isEmptyLaw :: Piece -> Property
-    isEmptyLaw (Piece x) = CS.isEmpty (pack x) === (pack x == mempty)
-
-    interposes :: Piece -> Piece -> Piece -> Property
-    interposes (Piece s) (Piece a) (Piece b) = CS.interposeSkipEmpty (pack s) (pack a) (pack b) === interposeSkipEmpty (pack s) (pack a) (pack b)
-
-    spaces :: Piece -> Piece -> Property
-    spaces (Piece a) (Piece b) = (pack a CS.<+?> pack b) === (pack a <+?> pack b)
-
-    joins :: Piece -> [Piece] -> Property
-    joins (Piece s) ps = CS.mintercalateSkipEmpty (pack s) xs === mintercalateSkipEmpty (pack s) xs
-      where
-        xs = map (pack . unPiece) ps
-
-    joinsBy :: Piece -> [Piece] -> Property
-    joinsBy (Piece s) ps = CS.mintercalateSkipEmptyBy (== pack " ") (pack s) xs === mintercalateSkipEmptyBy (== pack " ") (pack s) xs
-      where
-        xs = map (pack . unPiece) ps
-
-    unwordsJoins :: [Piece] -> Property
-    unwordsJoins ps = CS.munwordsSkipEmpty xs === munwordsSkipEmpty xs
-      where
-        xs = map (pack . unPiece) ps
