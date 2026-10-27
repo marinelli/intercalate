@@ -3,5 +3,5 @@
 ## 1.0.0.0 -- unreleased
 
 * First version.
-* `Data.Monoid.Intercalate` provides `interpose`, `mintercalate`, `mintercalateMap`, `space`, `(<+>)` and `munwords` for any `Monoid`.
-* It also provides `interposeSkipEmpty`, `interposeSkipEmptyBy`, `mintercalateSkipEmpty`, `mintercalateSkipEmptyBy`, `(<+?>)` and `munwordsSkipEmpty`. They leave out empty values.
+* `Data.Monoid.Intercalate` provides `interpose`, `mintercalate`, `mintercalateMap`, `space`, `(<+>)`, `(<+?>)` and `munwords` for any `Monoid`. The operator `(<+?>)` leaves out empty values.
+* `Data.Monoid.Intercalate.SkipEmpty` provides `interpose`, `interposeBy`, `mintercalate`, `mintercalateBy` and `munwords`. They leave out empty values. Import the module qualified.

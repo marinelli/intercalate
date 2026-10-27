@@ -5,8 +5,9 @@ synopsis:        Join monoidal values together with a separator
 description:
   Combinators that join 'Semigroup' and 'Monoid' values with a separator.
   "Data.Monoid.Intercalate" has 'Data.List.intercalate' and
-  'Data.List.unwords' for any 'Foldable' of 'Monoid' values. It also has
-  variants that leave out empty values.
+  'Data.List.unwords' for any 'Foldable' of 'Monoid' values.
+  "Data.Monoid.Intercalate.SkipEmpty" has variants that leave out empty
+  values.
 
 category:        Data, Text
 homepage:        https://github.com/marinelli/intercalate
@@ -36,7 +37,11 @@ common common-stanza
 library
   import:          common-stanza
   hs-source-dirs:  src
-  exposed-modules: Data.Monoid.Intercalate
+  exposed-modules:
+    Data.Monoid.Intercalate
+    Data.Monoid.Intercalate.SkipEmpty
+
+  other-modules:   Data.Monoid.Intercalate.Internal
 
 test-suite intercalate-test
   import:         common-stanza

@@ -2,30 +2,21 @@
 -- between them. They work for any 'Monoid'. The functions that separate
 -- string-like values with spaces need an 'IsString' type.
 --
--- The functions that end in @SkipEmpty@ leave out empty values. They never
--- put a separator next to an empty value. They find the empty values with
--- 'Eq'. The variants that end in @By@ take a predicate instead, for a type
--- without an 'Eq' instance.
+-- "Data.Monoid.Intercalate.SkipEmpty" has variants that leave out empty
+-- values, under the same names.
 module Data.Monoid.Intercalate (
-  -- * Joining values
   interpose,
   mintercalate,
   mintercalateMap,
   space,
   (<+>),
-  munwords,
-
-  -- * Leaving out empty values
-  interposeSkipEmpty,
-  interposeSkipEmptyBy,
-  mintercalateSkipEmpty,
-  mintercalateSkipEmptyBy,
   (<+?>),
-  munwordsSkipEmpty,
+  munwords,
 ) where
 
 import Data.Foldable
 import Data.List
+import Data.Monoid.Intercalate.Internal
 import Data.String
 
 -- | @interpose s a b@ puts the separator @s@ between @a@ and @b@.
@@ -98,55 +89,6 @@ infixr 6 <+>
 munwords :: (Foldable f, Monoid a, IsString a) => f a -> a
 munwords = mintercalate space
 
--- | @interposeSkipEmpty s a b@ is like 'interpose', but it puts the
--- separator @s@ only if neither @a@ nor @b@ is 'mempty'. If one of them is
--- 'mempty', the result is the other one.
---
--- >>> interposeSkipEmpty ", " "left" "right"
--- "left, right"
--- >>> interposeSkipEmpty ", " "left" ""
--- "left"
-interposeSkipEmpty :: (Eq s, Monoid s) => s -> s -> s -> s
-interposeSkipEmpty = interposeSkipEmptyBy (== mempty)
-
--- | @interposeSkipEmptyBy skip s a b@ is like 'interposeSkipEmpty', but it
--- leaves out each operand for which @skip@ gives 'True'. If it leaves out
--- both, the result is 'mempty'.
---
--- >>> import Data.Char
--- >>> interposeSkipEmptyBy (all isSpace) ", " "left" "  "
--- "left"
--- >>> interposeSkipEmptyBy (all isSpace) ", " " " "  "
--- ""
-interposeSkipEmptyBy :: Monoid s => (s -> Bool) -> s -> s -> s -> s
-interposeSkipEmptyBy skip s left right
-  | skip left = if skip right then mempty else right
-  -- The result starts with left before skip looks at right. So on a lazy
-  -- type, e.g. String, a right fold over an infinite list streams.
-  | otherwise = left <> if skip right then mempty else s <> right
-
--- | @mintercalateSkipEmpty s xs@ is like 'mintercalate', but it leaves out
--- the elements of @xs@ that are 'mempty'. So the result never has two
--- separators side by side, or a separator at either end.
---
--- >>> mintercalateSkipEmpty ", " ["a", "", "b", ""]
--- "a, b"
---
--- If a join of two non-empty values is never 'mempty', e.g. on 'String',
--- @Text@ or @ByteString@, it is a right fold of 'interposeSkipEmpty'. On an
--- infinite list whose elements are all 'mempty', it does not terminate.
-mintercalateSkipEmpty :: (Foldable f, Eq a, Monoid a) => a -> f a -> a
-mintercalateSkipEmpty = mintercalateSkipEmptyBy (== mempty)
-
--- | @mintercalateSkipEmptyBy skip s xs@ is like 'mintercalateSkipEmpty',
--- but it leaves out the elements for which @skip@ gives 'True'.
---
--- >>> import Data.Char
--- >>> mintercalateSkipEmptyBy (all isSpace) ", " ["a", " ", "b"]
--- "a, b"
-mintercalateSkipEmptyBy :: (Foldable f, Monoid a) => (a -> Bool) -> a -> f a -> a
-mintercalateSkipEmptyBy skip s = mintercalate s . filter (not . skip) . toList
-
 -- | @a \<+?> b@ is like @a \<+> b@, but it puts the space only if neither
 -- @a@ nor @b@ is 'mempty'. If one of them is 'mempty', the result is the
 -- other one.
@@ -162,15 +104,6 @@ mintercalateSkipEmptyBy skip s = mintercalate s . filter (not . skip) . toList
 --
 -- The operator has the same fixity as '<>' and '<+>', i.e. @infixr 6@.
 (<+?>) :: (Eq s, Monoid s, IsString s) => s -> s -> s
-(<+?>) = interposeSkipEmpty space
+(<+?>) = interposeSkipBy (== mempty) space
 
 infixr 6 <+?>
-
--- | @munwordsSkipEmpty xs@ is like 'munwords', but it leaves out the
--- elements of @xs@ that are 'mempty'. It is 'Data.List.unwords' after the
--- empty strings are removed.
---
--- >>> munwordsSkipEmpty ["foo", "", "bar"]
--- "foo bar"
-munwordsSkipEmpty :: (Foldable f, Eq a, Monoid a, IsString a) => f a -> a
-munwordsSkipEmpty = mintercalateSkipEmpty space
