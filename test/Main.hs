@@ -14,9 +14,8 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
--- | A short string that is often empty or blank. Arbitrary strings are
--- rarely empty, so the properties of the skip-empty functions would see
--- few empty values.
+-- | A short string that is often empty or blank. An arbitrary 'String' is
+-- rarely empty, so it tests the skip-empty functions poorly.
 newtype Piece = Piece {unPiece :: String}
 
 instance Show Piece where
@@ -46,9 +45,9 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
         , example "<+> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(<+>) >>= stringE . show)
         , example "munwords" "foo bar baz" (munwords ["foo", "bar", "baz"])
         , example "munwords Text" "foo bar baz" (T.unpack (munwords (map T.pack ["foo", "bar", "baz"])))
-        , -- With repeat "x", a spine-strict version would loop without
-          -- allocating, and tasty's timeout could not stop it. The list ends right
-          -- after "y", so a version that looks one element ahead also fails.
+        , -- On repeat "x", a version that forces the whole list loops without
+          -- allocating, and the tasty timeout cannot stop it. This list ends
+          -- after "y", so a version that looks one element ahead fails too.
           example "munwords is lazy" "x y" (take 3 (munwords ("x" : "y" : undefined)))
         , example "SkipEmpty.interpose" "left, right" (SkipEmpty.interpose ", " "left" "right")
         , example "SkipEmpty.interpose empty left" "right" (SkipEmpty.interpose ", " "" "right")
