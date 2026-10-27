@@ -17,7 +17,8 @@ author:          Giorgio Marinelli
 maintainer:      giorgio@marinel.li
 build-type:      Simple
 extra-doc-files: CHANGELOG.md
-tested-with:     GHC ==9.10.3 || ==9.12.4 || ==9.14.1
+tested-with:
+  GHC ^>=9.2 || ^>=9.4 || ^>=9.6 || ^>=9.8 || ^>=9.10 || ^>=9.12 || ^>=9.14 || ^>=10.0
 
 source-repository head
   type:     git
@@ -30,7 +31,7 @@ common common-stanza
     OverloadedStrings
 
   ghc-options:        -Wall -Werror=prepositive-qualified-module
-  build-depends:      base >=4.14 && <5
+  build-depends:      base >=4.16 && <5
 
 library
   import:          common-stanza
@@ -45,5 +46,22 @@ test-suite intercalate-test
   hs-source-dirs: test
   main-is:        Main.hs
   build-depends:
+    , bytestring
     , intercalate
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
+    , text
+
+benchmark intercalate-bench
+  import:         common-stanza
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: bench
+  main-is:        Main.hs
+  ghc-options:    -with-rtsopts=-T
+  build-depends:
+    , bytestring
+    , deepseq
+    , intercalate
+    , tasty-bench
     , text
