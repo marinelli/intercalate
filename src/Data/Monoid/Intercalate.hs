@@ -10,13 +10,11 @@ module Data.Monoid.Intercalate (
   mintercalateMap,
   space,
   (<+>),
-  (<+?>),
   munwords,
 ) where
 
 import Data.Foldable
 import Data.List
-import Data.Monoid.Intercalate.Internal
 import Data.String
 
 -- | @interpose s a b@ puts the separator @s@ between @a@ and @b@.
@@ -88,22 +86,3 @@ infixr 6 <+>
 -- "foo bar baz"
 munwords :: (Foldable f, Monoid a, IsString a) => f a -> a
 munwords = mintercalate space
-
--- | @a \<+?> b@ is like @a \<+> b@, but it puts the space only if neither
--- @a@ nor @b@ is 'mempty'. If one of them is 'mempty', the result is the
--- other one.
---
--- >>> "foo" <+?> "bar"
--- "foo bar"
--- >>> "" <+?> "bar"
--- "bar"
---
--- Every grouping of @a \<+?> b \<+?> c@ gives the same result on a type
--- where a join of two non-empty values is never 'mempty', e.g. 'String',
--- @Text@ or @ByteString@.
---
--- The operator has the same fixity as '<>' and '<+>', i.e. @infixr 6@.
-(<+?>) :: (Eq s, Monoid s, IsString s) => s -> s -> s
-(<+?>) = interposeSkipBy (== mempty) space
-
-infixr 6 <+?>

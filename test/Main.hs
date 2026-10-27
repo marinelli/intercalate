@@ -54,12 +54,13 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
         , example "SkipEmpty.interpose empty left" "right" (SkipEmpty.interpose ", " "" "right")
         , example "SkipEmpty.interpose empty right" "left" (SkipEmpty.interpose ", " "left" "")
         , example "SkipEmpty.interposeBy blank left" "right" (SkipEmpty.interposeBy (all isSpace) ", " "  " "right")
-        , example "<+?>" "foo bar" ("foo" <+?> "bar")
-        , example "<+?> empty left" "bar" ("" <+?> "bar")
-        , example "<+?> empty right" "foo" ("foo" <+?> "")
-        , example "<+?> Text" "bar" (T.unpack (T.empty <+?> T.pack "bar"))
-        , example "<+?> is lazy" "x y" (take 3 (foldr (<+?>) "" ("x" : "" : "y" : undefined)))
-        , example "<+?> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(<+?>) >>= stringE . show)
+        , example "SkipEmpty.<+?>" "foo bar" ("foo" SkipEmpty.<+?> "bar")
+        , example "SkipEmpty.<+?> empty left" "bar" ("" SkipEmpty.<+?> "bar")
+        , example "SkipEmpty.<+?> empty right" "foo" ("foo" SkipEmpty.<+?> "")
+        , example "SkipEmpty.<+?> Text" "bar" (T.unpack (T.empty SkipEmpty.<+?> T.pack "bar"))
+        , example "SkipEmpty.<+?> mixed with <+>" "SELECT x" ("SELECT" <+> "x" SkipEmpty.<+?> "")
+        , example "SkipEmpty.<+?> is lazy" "x y" (take 3 (foldr (SkipEmpty.<+?>) "" ("x" : "" : "y" : undefined)))
+        , example "SkipEmpty.<+?> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(SkipEmpty.<+?>) >>= stringE . show)
         , example "SkipEmpty.mintercalate" "a, b" (SkipEmpty.mintercalate ", " ["", "a", "", "b", ""])
         , example "SkipEmpty.mintercalate only empty" "" (SkipEmpty.mintercalate ", " ["", ""])
         , example "SkipEmpty.mintercalate Text" "a, b" (T.unpack (SkipEmpty.mintercalate (T.pack ", ") (map T.pack ["a", "", "b"])))
@@ -83,7 +84,7 @@ properties =
     , testProperty "<+> is associative" associative
     , testProperty "SkipEmpty.interpose is intercalate without empty operands" skipsEmpty
     , testProperty "SkipEmpty.interposeBy is intercalate without skipped operands" skipsBlank
-    , testProperty "<+?> is associative" associativeSkipEmpty
+    , testProperty "SkipEmpty.<+?> is associative" associativeSkipEmpty
     , testProperty "SkipEmpty.mintercalate is intercalate without empty elements" skipsEmptyElements
     , testProperty "SkipEmpty.mintercalateBy is intercalate without skipped elements" skipsBlankElements
     , testProperty "SkipEmpty.mintercalate is a right fold of SkipEmpty.interpose" foldsInterposeSkipEmpty
@@ -116,7 +117,7 @@ properties =
     skipsBlank (Piece s) (Piece a) (Piece b) = SkipEmpty.interposeBy (all isSpace) s a b === intercalate s (filter (not . all isSpace) [a, b])
 
     associativeSkipEmpty :: Piece -> Piece -> Piece -> Property
-    associativeSkipEmpty (Piece a) (Piece b) (Piece c) = (a <+?> b) <+?> c === a <+?> (b <+?> c)
+    associativeSkipEmpty (Piece a) (Piece b) (Piece c) = (a SkipEmpty.<+?> b) SkipEmpty.<+?> c === a SkipEmpty.<+?> (b SkipEmpty.<+?> c)
 
     skipsEmptyElements :: Piece -> [Piece] -> Property
     skipsEmptyElements (Piece s) ps = SkipEmpty.mintercalate s xs === intercalate s (filter (not . null) xs)

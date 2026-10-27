@@ -41,8 +41,6 @@ library
     Data.Monoid.Intercalate
     Data.Monoid.Intercalate.SkipEmpty
 
-  other-modules:   Data.Monoid.Intercalate.Internal
-
 test-suite intercalate-test
   import:         common-stanza
   type:           exitcode-stdio-1.0
