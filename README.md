@@ -1,17 +1,24 @@
 # intercalate
 
-intercalate joins `Monoid` values and puts a separator between them. The values can be in any `Foldable`, e.g. a list or a `NonEmpty`. They can have any `Monoid` type, e.g. `String`, `Text` or `ByteString`.
+intercalate joins `Monoid` values and puts a separator between them. The values can be in any `Foldable`, e.g. a list or a `NonEmpty`.
 
-The module `Data.Monoid.Intercalate` has `mintercalate`. It is `Data.List.intercalate` for any `Foldable` of `Monoid` values. The module `Data.String.Intercalate` adds variants that separate the values with spaces.
+The package has four modules:
+
+- `Data.Monoid.Intercalate` works for any `Monoid`, e.g. `String`, `Text`, a ByteString `Builder` or `Sum Int`. Its `mintercalate` is `Data.List.intercalate` for any `Foldable` of `Monoid` values, and its `munwords` is `Data.List.unwords`.
+- `Data.Intercalate` has the same functions for the types of the `Intercalate` class. They use the fastest join of each type, e.g. `Data.ByteString.intercalate`.
+- `Data.Monoid.Intercalate.SkipEmpty` and `Data.Intercalate.SkipEmpty` add variants that leave out empty values. They never put a separator next to an empty value.
 
 ```haskell
->>> import Data.String.Intercalate
+>>> import Data.Monoid.Intercalate
+>>> import Data.Monoid.Intercalate.SkipEmpty
 >>> mintercalate ", " ["a", "b", "c"]
 "a, b, c"
 >>> "foo" <+> "bar"
 "foo bar"
->>> smconcat ["foo", "bar", "baz"]
-"foo bar baz"
+>>> munwordsSkipEmpty ["foo", "", "bar"]
+"foo bar"
 ```
+
+To use the fast joins, import `Data.Intercalate` and `Data.Intercalate.SkipEmpty` instead. The function names stay the same.
 
 The package uses the BSD-3-Clause license. See [LICENSE](LICENSE).
