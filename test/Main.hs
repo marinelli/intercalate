@@ -38,13 +38,22 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
         , example "mintercalate singleton" "a" (mintercalate ", " ["a"])
         , example "mintercalate Maybe" "a" (mintercalate ", " (Just "a"))
         , example "mintercalate NonEmpty" "a, b, c" (mintercalate ", " ("a" NE.:| ["b", "c"]))
-        , example "mintercalate Text" "a, b, c" (T.unpack (mintercalate (T.pack ", ") (map T.pack ["a", "b", "c"])))
+        , example
+            "mintercalate Text"
+            "a, b, c"
+            (T.unpack (mintercalate (T.pack ", ") (map T.pack ["a", "b", "c"])))
         , example "mintercalate is lazy" "a" (take 1 (mintercalate "," ("a" : undefined)))
         , example "mintercalateMap" "1, 2, 3" (mintercalateMap ", " show [1, 2, 3 :: Int])
         , example "<+>" "foo bar" ("foo" <+> "bar")
-        , example "<+> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(<+>) >>= stringE . show)
+        , example
+            "<+> has the fixity of <>"
+            $(reifyFixity '(<>) >>= stringE . show)
+            $(reifyFixity '(<+>) >>= stringE . show)
         , example "munwords" "foo bar baz" (munwords ["foo", "bar", "baz"])
-        , example "munwords Text" "foo bar baz" (T.unpack (munwords (map T.pack ["foo", "bar", "baz"])))
+        , example
+            "munwords Text"
+            "foo bar baz"
+            (T.unpack (munwords (map T.pack ["foo", "bar", "baz"])))
         , -- On repeat "x", a version that forces the whole list loops without
           -- allocating, and the tasty timeout cannot stop it. This list ends
           -- after "y", so a version that looks one element ahead fails too.
@@ -52,19 +61,40 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
         , example "SkipEmpty.interpose" "left, right" (SkipEmpty.interpose ", " "left" "right")
         , example "SkipEmpty.interpose empty left" "right" (SkipEmpty.interpose ", " "" "right")
         , example "SkipEmpty.interpose empty right" "left" (SkipEmpty.interpose ", " "left" "")
-        , example "SkipEmpty.interposeBy blank left" "right" (SkipEmpty.interposeBy (all isSpace) ", " "  " "right")
+        , example
+            "SkipEmpty.interposeBy blank left"
+            "right"
+            (SkipEmpty.interposeBy (all isSpace) ", " "  " "right")
         , example "SkipEmpty.<+?>" "foo bar" ("foo" SkipEmpty.<+?> "bar")
         , example "SkipEmpty.<+?> empty left" "bar" ("" SkipEmpty.<+?> "bar")
         , example "SkipEmpty.<+?> empty right" "foo" ("foo" SkipEmpty.<+?> "")
         , example "SkipEmpty.<+?> Text" "bar" (T.unpack (T.empty SkipEmpty.<+?> T.pack "bar"))
         , example "SkipEmpty.<+?> mixed with <+>" "SELECT x" ("SELECT" <+> "x" SkipEmpty.<+?> "")
-        , example "SkipEmpty.<+?> is lazy" "x y" (take 3 (foldr (SkipEmpty.<+?>) "" ("x" : "" : "y" : undefined)))
-        , example "SkipEmpty.<+?> has the fixity of <>" $(reifyFixity '(<>) >>= stringE . show) $(reifyFixity '(SkipEmpty.<+?>) >>= stringE . show)
-        , example "SkipEmpty.mintercalate" "a, b" (SkipEmpty.mintercalate ", " ["", "a", "", "b", ""])
+        , example
+            "SkipEmpty.<+?> is lazy"
+            "x y"
+            (take 3 (foldr (SkipEmpty.<+?>) "" ("x" : "" : "y" : undefined)))
+        , example
+            "SkipEmpty.<+?> has the fixity of <>"
+            $(reifyFixity '(<>) >>= stringE . show)
+            $(reifyFixity '(SkipEmpty.<+?>) >>= stringE . show)
+        , example
+            "SkipEmpty.mintercalate"
+            "a, b"
+            (SkipEmpty.mintercalate ", " ["", "a", "", "b", ""])
         , example "SkipEmpty.mintercalate only empty" "" (SkipEmpty.mintercalate ", " ["", ""])
-        , example "SkipEmpty.mintercalate Text" "a, b" (T.unpack (SkipEmpty.mintercalate (T.pack ", ") (map T.pack ["a", "", "b"])))
-        , example "SkipEmpty.mintercalate is lazy" "x y" (take 3 (SkipEmpty.mintercalate " " ("x" : "" : "y" : undefined)))
-        , example "SkipEmpty.mintercalateBy" "a, b" (SkipEmpty.mintercalateBy (all isSpace) ", " ["a", " ", "", "b"])
+        , example
+            "SkipEmpty.mintercalate Text"
+            "a, b"
+            (T.unpack (SkipEmpty.mintercalate (T.pack ", ") (map T.pack ["a", "", "b"])))
+        , example
+            "SkipEmpty.mintercalate is lazy"
+            "x y"
+            (take 3 (SkipEmpty.mintercalate " " ("x" : "" : "y" : undefined)))
+        , example
+            "SkipEmpty.mintercalateBy"
+            "a, b"
+            (SkipEmpty.mintercalateBy (all isSpace) ", " ["a", " ", "", "b"])
         , example "SkipEmpty.munwords" "foo bar" (SkipEmpty.munwords ["foo", "", "bar"])
         ]
       where
@@ -84,14 +114,24 @@ properties =
     , testProperty "SkipEmpty.interpose is intercalate without empty operands" skipsEmpty
     , testProperty "SkipEmpty.interposeBy is intercalate without skipped operands" skipsBlank
     , testProperty "SkipEmpty.<+?> is associative" associativeSkipEmpty
-    , testProperty "SkipEmpty.mintercalate is intercalate without empty elements" skipsEmptyElements
-    , testProperty "SkipEmpty.mintercalateBy is intercalate without skipped elements" skipsBlankElements
-    , testProperty "SkipEmpty.mintercalate is a right fold of SkipEmpty.interpose" foldsInterposeSkipEmpty
-    , testProperty "SkipEmpty.mintercalateBy is a right fold of SkipEmpty.interposeBy" foldsInterposeSkipEmptyBy
+    , testProperty
+        "SkipEmpty.mintercalate is intercalate without empty elements"
+        skipsEmptyElements
+    , testProperty
+        "SkipEmpty.mintercalateBy is intercalate without skipped elements"
+        skipsBlankElements
+    , testProperty
+        "SkipEmpty.mintercalate is a right fold of SkipEmpty.interpose"
+        foldsInterposeSkipEmpty
+    , testProperty
+        "SkipEmpty.mintercalateBy is a right fold of SkipEmpty.interposeBy"
+        foldsInterposeSkipEmptyBy
     , testProperty "SkipEmpty.munwords is unwords without empty elements" unwordsSkipEmpty
     ]
   where
-    agreesWith :: (Eq a, Show a, Monoid a) => (String -> a) -> (a -> [a] -> a) -> Piece -> [Piece] -> Property
+    agreesWith
+      :: (Eq a, Show a, Monoid a)
+      => (String -> a) -> (a -> [a] -> a) -> Piece -> [Piece] -> Property
     agreesWith pack baseline (Piece s) ps = mintercalate (pack s) xs === baseline (pack s) xs
       where
         xs = map (pack . unPiece) ps
@@ -113,7 +153,9 @@ properties =
     skipsEmpty (Piece s) (Piece a) (Piece b) = SkipEmpty.interpose s a b === intercalate s (filter (not . null) [a, b])
 
     skipsBlank :: Piece -> Piece -> Piece -> Property
-    skipsBlank (Piece s) (Piece a) (Piece b) = SkipEmpty.interposeBy (all isSpace) s a b === intercalate s (filter (not . all isSpace) [a, b])
+    skipsBlank (Piece s) (Piece a) (Piece b) =
+      SkipEmpty.interposeBy (all isSpace) s a b
+        === intercalate s (filter (not . all isSpace) [a, b])
 
     associativeSkipEmpty :: Piece -> Piece -> Piece -> Property
     associativeSkipEmpty (Piece a) (Piece b) (Piece c) = (a SkipEmpty.<+?> b) SkipEmpty.<+?> c === a SkipEmpty.<+?> (b SkipEmpty.<+?> c)
@@ -124,7 +166,9 @@ properties =
         xs = map unPiece ps
 
     skipsBlankElements :: Piece -> [Piece] -> Property
-    skipsBlankElements (Piece s) ps = SkipEmpty.mintercalateBy (all isSpace) s xs === intercalate s (filter (not . all isSpace) xs)
+    skipsBlankElements (Piece s) ps =
+      SkipEmpty.mintercalateBy (all isSpace) s xs
+        === intercalate s (filter (not . all isSpace) xs)
       where
         xs = map unPiece ps
 
@@ -134,7 +178,9 @@ properties =
         xs = map unPiece ps
 
     foldsInterposeSkipEmptyBy :: Piece -> [Piece] -> Property
-    foldsInterposeSkipEmptyBy (Piece s) ps = SkipEmpty.mintercalateBy (all isSpace) s xs === foldr (SkipEmpty.interposeBy (all isSpace) s) "" xs
+    foldsInterposeSkipEmptyBy (Piece s) ps =
+      SkipEmpty.mintercalateBy (all isSpace) s xs
+        === foldr (SkipEmpty.interposeBy (all isSpace) s) "" xs
       where
         xs = map unPiece ps
 

@@ -25,7 +25,8 @@ main =
     , versus "ShortByteString" "SBS.intercalate" SBS.intercalate (SBS.toShort . B.pack)
     ]
   where
-    versus :: (NFData a, Monoid a) => String -> String -> (a -> [a] -> a) -> (String -> a) -> Benchmark
+    versus
+      :: (NFData a, Monoid a) => String -> String -> (a -> [a] -> a) -> (String -> a) -> Benchmark
     versus name baselineName baseline pack =
       env (pure (map pack pieces)) $ \xs ->
         bgroup
@@ -33,7 +34,9 @@ main =
           [ bench baselineName (nf (baseline (pack ", ")) xs)
           , -- The pattern matches only the last name in the path, so the
             -- baseline names must be unique.
-            bcompare ("$NF == \"" ++ baselineName ++ "\"") (bench "mintercalate" (nf (mintercalate (pack ", ")) xs))
+            bcompare
+              ("$NF == \"" ++ baselineName ++ "\"")
+              (bench "mintercalate" (nf (mintercalate (pack ", ")) xs))
           ]
 
     pieces :: [String]
