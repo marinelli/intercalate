@@ -55,8 +55,9 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
             "foo bar baz"
             (T.unpack (munwords (map T.pack ["foo", "bar", "baz"])))
         , -- On repeat "x", a version that forces the whole list loops without
-          -- allocating, and the tasty timeout cannot stop it. This list ends
-          -- after "y", so a version that looks one element ahead fails too.
+          -- allocating, and the tasty timeout cannot stop it. This list is
+          -- undefined after "y", so a version that looks one element ahead
+          -- fails too.
           example "munwords is lazy" "x y" (take 3 (munwords ("x" : "y" : undefined)))
         , example "SkipEmpty.interpose" "left, right" (SkipEmpty.interpose ", " "left" "right")
         , example "SkipEmpty.interpose empty left" "right" (SkipEmpty.interpose ", " "" "right")
