@@ -11,7 +11,7 @@ The module `Data.Monoid.Intercalate.SkipEmpty` has variants that leave out empty
 >>> import Data.Monoid.Intercalate.SkipEmpty qualified as SkipEmpty
 >>> mintercalate ", " ["a", "b", "c"]
 "a, b, c"
->>> "foo" <+> "" SkipEmpty.<+?> "bar"
+>>> "foo" <+> "bar" SkipEmpty.<+?> ""
 "foo bar"
 >>> SkipEmpty.munwords ["foo", "", "bar"]
 "foo bar"
