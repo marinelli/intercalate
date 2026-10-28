@@ -14,8 +14,10 @@ main :: IO ()
 main =
   -- Earlier groups slow down later ones through the heap. On GHC 9.12.4,
   -- mintercalate on ByteString took 6.6 ms alone and 10.9 ms after the
-  -- others. The Haddock of mintercalate quotes runs of one group, e.g.
-  -- -p '$2 == "ByteString"'.
+  -- others. The Haddock of mintercalate quotes runs of one group. Run one
+  -- group with $(cabal list-bin intercalate-bench) -p '$2 == "ByteString"'.
+  -- The --benchmark-options flag of cabal bench splits this pattern at its
+  -- spaces.
   defaultMain
     [ versus "String" "Data.List.intercalate" intercalate id
     , versus "Text" "T.intercalate" T.intercalate T.pack
