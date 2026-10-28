@@ -4,4 +4,4 @@
 
 * First version.
 * `Data.Monoid.Intercalate` provides `interpose`, `mintercalate`, `mintercalateMap`, `space`, `(<+>)` and `munwords` for any `Monoid`.
-* `Data.Monoid.Intercalate.SkipEmpty` provides `interpose`, `interposeBy`, `mintercalate`, `mintercalateBy`, `(<+?>)` and `munwords`. They leave out empty values. Import the module qualified.
+* `Data.Monoid.Intercalate.SkipEmpty` provides `interpose`, `interposeBy`, `mintercalate`, `mintercalateBy`, `mintercalateMap`, `(<+?>)` and `munwords`. They leave out empty values. Import the module qualified.

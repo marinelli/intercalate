@@ -15,6 +15,7 @@ module Data.Monoid.Intercalate.SkipEmpty (
   interposeBy,
   mintercalate,
   mintercalateBy,
+  mintercalateMap,
   (<+?>),
   munwords,
 ) where
@@ -69,6 +70,14 @@ mintercalate = mintercalateBy (== mempty)
 -- "a, b"
 mintercalateBy :: (Foldable f, Monoid a) => (a -> Bool) -> a -> f a -> a
 mintercalateBy skip s = Core.mintercalate s . filter (not . skip) . toList
+
+-- | @mintercalateMap s f xs@ applies @f@ to each element of @xs@ and joins
+-- the results with 'mintercalate', so it leaves out the empty results.
+--
+-- >>> mintercalateMap ", " (maybe "" show) [Just 1, Nothing, Just (2 :: Int)]
+-- "1, 2"
+mintercalateMap :: (Foldable f, Eq b, Monoid b) => b -> (a -> b) -> f a -> b
+mintercalateMap s f = mintercalate s . map f . toList
 
 -- | @a \<+?> b@ is like @a \<+> b@ in "Data.Monoid.Intercalate", but it
 -- puts the space only if neither operand is 'mempty'.

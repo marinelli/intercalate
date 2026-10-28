@@ -95,6 +95,10 @@ main = defaultMain (testGroup "intercalate" [examples, properties])
             "SkipEmpty.mintercalateBy"
             "a, b"
             (SkipEmpty.mintercalateBy (all isSpace) ", " ["a", " ", "", "b"])
+        , example
+            "SkipEmpty.mintercalateMap"
+            "1, 2"
+            (SkipEmpty.mintercalateMap ", " (filter isDigit) ["a1", "b", "c2"])
         , example "SkipEmpty.munwords" "foo bar" (SkipEmpty.munwords ["foo", "", "bar"])
         ]
       where
@@ -126,6 +130,7 @@ properties =
     , testProperty
         "SkipEmpty.mintercalateBy is a right fold of SkipEmpty.interposeBy"
         foldsInterposeSkipEmptyBy
+    , testProperty "SkipEmpty.mintercalateMap maps, then joins" mapsThenJoinsSkipEmpty
     , testProperty "SkipEmpty.munwords is unwords without empty elements" unwordsSkipEmpty
     ]
   where
@@ -181,6 +186,13 @@ properties =
     foldsInterposeSkipEmptyBy (Piece s) ps =
       SkipEmpty.mintercalateBy (all isSpace) s xs
         === foldr (SkipEmpty.interposeBy (all isSpace) s) "" xs
+      where
+        xs = map unPiece ps
+
+    mapsThenJoinsSkipEmpty :: Piece -> [Piece] -> Property
+    mapsThenJoinsSkipEmpty (Piece s) ps =
+      SkipEmpty.mintercalateMap s (filter (/= ' ')) xs
+        === SkipEmpty.mintercalate s (map (filter (/= ' ')) xs)
       where
         xs = map unPiece ps
 
