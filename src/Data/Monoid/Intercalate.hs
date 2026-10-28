@@ -61,7 +61,9 @@ space = fromString [' ']
 -- The fixity is @infixr 6@, as for '<>', so you can mix the two operators
 -- without parentheses.
 --
--- "Control.Arrow" also exports a @(\<+>)@. If you import both, hide one.
+-- "Control.Arrow" and the packages @prettyprinter@ and @pretty@ also export
+-- a @(\<+>)@. If you import one of them with this module, hide one of the two
+-- operators.
 (<+>) :: (Semigroup s, IsString s) => s -> s -> s
 (<+>) = interpose space
 
