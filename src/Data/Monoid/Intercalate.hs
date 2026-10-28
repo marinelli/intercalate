@@ -31,7 +31,7 @@ interpose s left right = left <> s <> right
 -- For speed on a strict @ByteString@ or a @ShortByteString@, use the
 -- @intercalate@ of its own module, which copies the pieces into one buffer.
 -- On 100,000 short pieces, it was about 5 times faster on a @ByteString@
--- and 6 times on a @ShortByteString@, with 12 times less memory.
+-- and 6 times on a @ShortByteString@, with a twelfth of the allocation.
 -- On the other types of @text@ and @bytestring@, the speed was the same.
 -- The benchmark of this package gave these numbers, with each
 -- group run alone on GHC 9.12.4 and bytestring-0.12.2.0.
