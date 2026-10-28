@@ -155,7 +155,9 @@ properties =
     associative (Piece a) (Piece b) (Piece c) = (a <+> b) <+> c === a <+> (b <+> c)
 
     skipsEmpty :: Piece -> Piece -> Piece -> Property
-    skipsEmpty (Piece s) (Piece a) (Piece b) = SkipEmpty.interpose s a b === intercalate s (filter (not . null) [a, b])
+    skipsEmpty (Piece s) (Piece a) (Piece b) =
+      SkipEmpty.interpose s a b
+        === intercalate s (filter (not . null) [a, b])
 
     skipsBlank :: Piece -> Piece -> Piece -> Property
     skipsBlank (Piece s) (Piece a) (Piece b) =
@@ -163,10 +165,14 @@ properties =
         === intercalate s (filter (not . all isSpace) [a, b])
 
     associativeSkipEmpty :: Piece -> Piece -> Piece -> Property
-    associativeSkipEmpty (Piece a) (Piece b) (Piece c) = (a SkipEmpty.<+?> b) SkipEmpty.<+?> c === a SkipEmpty.<+?> (b SkipEmpty.<+?> c)
+    associativeSkipEmpty (Piece a) (Piece b) (Piece c) =
+      (a SkipEmpty.<+?> b) SkipEmpty.<+?> c
+        === a SkipEmpty.<+?> (b SkipEmpty.<+?> c)
 
     skipsEmptyElements :: Piece -> [Piece] -> Property
-    skipsEmptyElements (Piece s) ps = SkipEmpty.mintercalate s xs === intercalate s (filter (not . null) xs)
+    skipsEmptyElements (Piece s) ps =
+      SkipEmpty.mintercalate s xs
+        === intercalate s (filter (not . null) xs)
       where
         xs = map unPiece ps
 
@@ -178,7 +184,9 @@ properties =
         xs = map unPiece ps
 
     foldsInterposeSkipEmpty :: Piece -> [Piece] -> Property
-    foldsInterposeSkipEmpty (Piece s) ps = SkipEmpty.mintercalate s xs === foldr (SkipEmpty.interpose s) "" xs
+    foldsInterposeSkipEmpty (Piece s) ps =
+      SkipEmpty.mintercalate s xs
+        === foldr (SkipEmpty.interpose s) "" xs
       where
         xs = map unPiece ps
 
