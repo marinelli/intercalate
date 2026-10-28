@@ -81,7 +81,13 @@ mintercalateBy skip s = Core.mintercalate s . filter (not . skip) . toList
 -- Every grouping of @a \<+?> b \<+?> c@ gives the same result, if a join
 -- of two non-empty values is never 'mempty', e.g. on 'String'.
 --
--- The fixity is @infixr 6@, as for '<>' and @\<+>@.
+-- The fixity is @infixr 6@, as for '<>' and @\<+>@. You can mix the
+-- operators, but @\<+>@ always puts its space. So use @\<+>@ only next to an
+-- operand that is never 'mempty':
+--
+-- >>> import Data.Monoid.Intercalate
+-- >>> "foo" <+?> "" <+> "bar"
+-- "foo  bar"
 (<+?>) :: (Eq s, Monoid s, IsString s) => s -> s -> s
 (<+?>) = interpose Core.space
 
